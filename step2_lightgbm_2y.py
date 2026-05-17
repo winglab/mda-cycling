@@ -6,6 +6,7 @@ Ported from step2_LightGBM.ipynb — 2Y path only (train_2Y → lgbm_model_2Y �
 
 from __future__ import annotations
 
+import sqlite3
 from pathlib import Path
 
 import numpy as np
@@ -29,13 +30,25 @@ FEATURES = [
     "lag_28",
 ]
 TARGET = "Count"
+DEFAULT_DB_PATH = "fietstellingen.db"
+DEFAULT_TABLE = "traffic_counts"
+
+
+def load_raw_data(
+    db_path: str | Path = DEFAULT_DB_PATH,
+    table: str = DEFAULT_TABLE,
+) -> pd.DataFrame:
+    """Load cycling counts from SQLite (step2_LightGBM.ipynb)."""
+    with sqlite3.connect(Path(db_path)) as conn:
+        return pd.read_sql_query(f'SELECT * FROM "{table}"', conn)
 
 
 def load_and_prepare_daily(
-    csv_path: str | Path = "Full_Dataset_Cycling.csv",
+    db_path: str | Path = DEFAULT_DB_PATH,
+    table: str = DEFAULT_TABLE,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Load raw counts, aggregate to daily per site, add features and lags."""
-    df = pd.read_csv(csv_path)
+    df = load_raw_data(db_path, table)
     df["Start_Time"] = pd.to_datetime(df["Start_Time"])
     df["End_Time"] = pd.to_datetime(df["End_Time"])
 
@@ -188,7 +201,8 @@ def predict_and_evaluate(
 
 
 def run_pipeline(
-    csv_path: str | Path = "Full_Dataset_Cycling.csv",
+    db_path: str | Path = DEFAULT_DB_PATH,
+    table: str = DEFAULT_TABLE,
     cutoff: str = "2025-05-16",
     forecast_end: str = "2025-11-16",
     train_years: int = 2,
@@ -196,7 +210,7 @@ def run_pipeline(
     """
     Full 2Y pipeline: load → features → split → fit → recursive forecast → eval_df_2Y.
     """
-    df_daily, df_model = load_and_prepare_daily(csv_path)
+    df_daily, df_model = load_and_prepare_daily(db_path, table)
     train_2y, test_actual_2y = split_train_test(
         df_model,
         cutoff=cutoff,
@@ -223,10 +237,10 @@ def run_pipeline(
 
 def main() -> None:
     project_dir = Path(__file__).resolve().parent
-    csv_path = project_dir / "Full_Dataset_Cycling.csv"
+    db_path = project_dir / DEFAULT_DB_PATH
     out_path = project_dir / "eval_df_2Y.csv"
 
-    results = run_pipeline(csv_path=csv_path)
+    results = run_pipeline(db_path=db_path)
     results["eval_df_2Y"].to_csv(out_path, index=False)
     print(f"Saved eval_df_2Y to {out_path}")
 
