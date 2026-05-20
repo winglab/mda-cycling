@@ -19,6 +19,8 @@ import holidays
 import mlflow
 import mlflow.lightgbm
 
+from argparse import ArgumentParser
+
 FEATURES = [
     "Site_ID",
     "dayofweek",
@@ -32,7 +34,8 @@ FEATURES = [
     "lag_7"
 ]
 TARGET = "Count"
-DEFAULT_DB_PATH = "fietstellingen.db"
+DEFAULT_DB_PATH = "../data/fietstellingen.db"
+DEFAULT_OUT_PATH = "../data/eval_df.csv"
 DEFAULT_TABLE = "traffic_counts"
 
 
@@ -310,16 +313,21 @@ def run_pipeline(
     }
 
 
-def main(
-        cutoff: str = "2026-03-31",
-        forecast_end: str = "2026-04-30",
-        train_days: int = 365
-) -> None:
+def main() -> None:
+    # parse arguments from CLI
+    parser = ArgumentParser()
+    parser.add_argument("--cutoff", type=str, default="2026-03-31")
+    parser.add_argument("--forecast_end", type=str, default="2026-04-30")
+    parser.add_argument("--train_days", type=int, default=365)
+    args = parser.parse_args()
+
+    print(f"Set params: cutoff={args.cutoff}, forecast_end={args.forecast_end}, train_days={args.train_days}")
+
     project_dir = Path(__file__).resolve().parent
     db_path = project_dir / DEFAULT_DB_PATH
-    out_path = project_dir / "eval_df.csv"
+    out_path = project_dir / DEFAULT_OUT_PATH
 
-    results = run_pipeline(db_path=db_path, cutoff=cutoff, forecast_end=forecast_end, train_days=train_days)
+    results = run_pipeline(db_path=db_path, cutoff=args.cutoff, forecast_end=args.forecast_end, train_days=args.train_days)
     results["eval_df"].to_csv(out_path, index=False)
     print(f"Saved eval_df to {out_path}")
 
