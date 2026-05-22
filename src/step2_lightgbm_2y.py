@@ -254,6 +254,7 @@ def run_pipeline(
     """Full 1Y pipeline: load → features → split → fit → recursive forecast → eval_df."""
 
     ## Dhruv => Setting experiment name
+    mlflow.set_tracking_uri("http://localhost:5000")
     mlflow.set_experiment("Forecasting Experiment")
 
     ## Dhruv => Added model parameters here instead
