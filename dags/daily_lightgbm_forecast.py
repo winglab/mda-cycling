@@ -17,18 +17,28 @@ with DAG(
     tags=["forecasting"],
 ) as dag:
 
+    PROJECT = "/Users/rinyoshida/Downloads/KUL/2025_2026/MDA/project/mda-cycling"
+    PYTHON = f"{PROJECT}/.venv/bin/python"
+
+    # PROJECT = "/app"
+    # PYTHON = "/app/.venv/bin/python"
+    # YTHON = "python"
+
     extract_data = BashOperator(
         task_id="extract_data",
-        bash_command="python src/step1_data_extraction.py",
+        bash_command=f"{PYTHON} src/step1_data_extraction.py",
         cwd="/Users/rinyoshida/Downloads/KUL/2025_2026/MDA/project/mda-cycling",
         # cwd="/app"
     )
 
     run_lightgbm_pipeline = BashOperator(
         task_id="run_lightgbm_pipeline",
-        bash_command="python src/step2_lightgbm_2y.py",
+        bash_command=f"{PYTHON} src/step2_lightgbm_2y.py",
         cwd="/Users/rinyoshida/Downloads/KUL/2025_2026/MDA/project/mda-cycling",
         # cwd="/app"
     )
 
     extract_data >> run_lightgbm_pipeline
+
+    print("step2 upstream:", run_lightgbm_pipeline.upstream_task_ids)
+    print("step1 downstream:", extract_data.downstream_task_ids)

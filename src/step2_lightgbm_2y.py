@@ -31,9 +31,17 @@ FEATURES = [
     "lag_7"
 ]
 TARGET = "Count"
-DEFAULT_DB_PATH = "fietstellingen.db"
+DEFAULT_DB_PATH = "../data/fietstellingen.db"
+DEFAULT_OUT_PATH = "../data/eval_df.csv"
 DEFAULT_TABLE = "traffic_counts"
-METRICS_DB_PATH = "model_metrics.db"
+
+mlflow.set_tracking_uri("file:./mlruns")
+mlflow.set_experiment("lightgbm_forecasting")
+
+# TARGET = "Count"
+# DEFAULT_DB_PATH = "../data/fietstellingen.db"
+# DEFAULT_OUT_PATH = "../data/eval_df.csv"
+# DEFAULT_TABLE = "traffic_counts"
 
 def get_latest_date_from_db(
     db_path: str | Path = DEFAULT_DB_PATH,
@@ -242,6 +250,11 @@ def run_pipeline(
 ) -> dict:
     """Full 1Y pipeline: load → features → split → fit → recursive forecast → eval_df."""
     ## Dhruv => Setting experiment name
+    # mlflow.set_tracking_uri("http://localhost:5000")
+    # mlflow.set_experiment("Forecasting Experiment")
+
+    project_root = Path(__file__).resolve().parent.parent
+    mlflow.set_tracking_uri(project_root / "mlruns")
     mlflow.set_experiment("Forecasting Experiment")
     ## Dhruv => Added model parameters here instead
     lgbm_params = {"n_estimators": 500, "learning_rate": 0.05, "max_depth": -1, "num_leaves": 31, "random_state": 42}
@@ -293,10 +306,13 @@ def main(
     out_path = project_dir / DEFAULT_OUT_PATH
 
     if forecast_end is None:
-        forecast_end = get_latest_date_from_db(db_path=db_path)
-
+        forecast_end = (
+            pd.Timestamp(get_latest_date_from_db(db_path=db_path)) - pd.Timedelta(days=2)
+        ).strftime("%Y-%m-%d")  
     if cutoff is None:
-        cutoff = (pd.Timestamp(forecast_end) - pd.DateOffset(months=1)).strftime("%Y-%m-%d")
+        cutoff = (
+            pd.Timestamp(forecast_end) - pd.DateOffset(months=1)
+        ).strftime("%Y-%m-%d")
 
     print(f"Cutoff used: {cutoff}")
     print(f"Forecast_end used: {forecast_end}")
