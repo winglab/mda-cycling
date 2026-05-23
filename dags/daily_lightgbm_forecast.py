@@ -30,7 +30,7 @@ with DAG(
 
     extract_data = DockerOperator(
         task_id="extract_data",
-        image="mda-new",
+        image="mda-cycling",
         command="python app/src/step1_data_extraction.py",
         docker_url="unix://var/run/docker.sock",
         network_mode="mda-net",
@@ -55,7 +55,7 @@ with DAG(
 
     run_lightgbm_pipeline = DockerOperator(
         task_id="run_lightgbm_pipeline",
-        image="mda-new",
+        image="mda-cycling",
         command="python app/src/step2_lightgbm_2y.py --train_days 30",
         docker_url="unix://var/run/docker.sock",
         network_mode="mda-net",
