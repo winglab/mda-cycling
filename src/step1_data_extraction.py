@@ -74,6 +74,9 @@ def data_to_sqlite_incremental():
     table_name = "traffic_counts"
     col_names = ["Site_ID", "Direction", "Modus", "Start_Time", "End_Time", "Count"]
 
+    ## Ensure the unique index is active before getting the latest date
+    init_database_constraints(db_name, table_name)
+
     ## Determine our start point based on existing data
     start_date = get_latest_date(db_name, table_name)
     
