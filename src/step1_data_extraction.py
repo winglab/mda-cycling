@@ -81,15 +81,12 @@ def insert_ignore(table, conn, keys, data_iter):
     Custom insertion method for pandas to_sql that utilizes SQLite's 
     INSERT OR IGNORE engine strategy to handle duplicate rows gracefully.
     """
-    cursor = conn.cursor()
-    
-    ## Construct an INSERT OR IGNORE statement dynamically based on columns
     columns = ", ".join([f'"{k}"' for k in keys])
     placeholders = ", ".join(["?"] * len(keys))
     
     sql = f'INSERT OR IGNORE INTO "{table.name}" ({columns}) VALUES ({placeholders})'
     
-    cursor.executemany(sql, data_iter)
+    conn.executemany(sql, data_iter)
 
 ## Function to incrementally fetch missing monthly files from the AWV portal
 def data_to_sqlite_incremental():
