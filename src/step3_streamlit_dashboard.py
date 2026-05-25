@@ -310,6 +310,6 @@ def render_dashboard_data():
 
 render_dashboard_data()
 
-st.sidebar.markdown("[Go to MLflow Server](http://mlflow:5000)")
-st.sidebar.markdown("[Go to Airflow Server](http://airflow-server:8080/home)") 
+st.sidebar.markdown("[Go to MLflow Server](http://13.222.164.59:5000)")
+st.sidebar.markdown("[Go to Airflow Server](http://13.222.164.59:8080/home)")
 
