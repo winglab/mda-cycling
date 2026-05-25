@@ -324,7 +324,7 @@ def run_pipeline(
             print(f"Model not registered: mae={mae:.2f}, MAE_THRESHOLD={MAE_THRESHOLD}, rmse={rmse:.2f}, RMSE_THRESHOLD={RMSE_THRESHOLD}")
 
         ## Log to SQLite for Streamlit
-        save_metrics_to_db(mae, rmse, eval_df, db_path)
+        save_metrics_to_db(mae, rmse, eval_df)
 
 
         return {
