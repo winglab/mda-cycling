@@ -1,7 +1,9 @@
 numpy
 pandas
+datetime
 lightgbm
 scikit-learn
+sqlite3
 mlflow
 holidays
 streamlit
@@ -10,4 +12,4 @@ requests_cache
 retry
 openpyxl
 fastapi
-
+pathlib
